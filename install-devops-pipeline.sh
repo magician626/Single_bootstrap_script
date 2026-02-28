@@ -23,12 +23,27 @@ sudo usermod -aG docker ubuntu
 
 # Install Jenkins
 echo "Installing Jenkins..."
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee \
-  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
 
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-  /etc/apt/sources.list.d/jenkins.list > /dev/null
+# Remove old repo if exists
+sudo rm -f /etc/apt/sources.list.d/jenkins.list
+
+# Add Jenkins GPG Key (New method)
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | \
+sudo gpg --dearmor -o /usr/share/keyrings/jenkins-keyring.gpg
+
+# Add Jenkins Repository
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.gpg] https://pkg.jenkins.io/debian-stable binary/" | \
+sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+# Update package list
+sudo apt update -y
+
+# Install Jenkins
+sudo apt install -y jenkins
+
+# Enable & Start Jenkins
+sudo systemctl enable jenkins
+sudo systemctl start jenkins
 
 sudo apt update -y
 sudo apt install -y jenkins
